@@ -16,19 +16,19 @@ long  ledDelayOn, ledDelayOff;
 void ledShow(int delayOn, int deayOff) {
   ledDelayOn = delayOn;
   ledDelayOff = deayOff;
-  tLED.enable();
+  tLED.enableIfNot();
 }
 
 void ledShowConnecting() {
   ledDelayOn = TASK_SECOND / 4;
   ledDelayOff = TASK_SECOND / 4;
-  tLED.enable();
+  tLED.enableIfNot();
 }
 
 void ledShowError() {
   ledDelayOn = TASK_SECOND / 32;   // Blink LEDs quickly due to error
   ledDelayOff = TASK_SECOND / 8;
-  tLED.enable();
+  tLED.enableIfNot();
 }
 /**
  * Flip the LED state based on the current state
@@ -62,7 +62,6 @@ void ledOnDisable() {
 void ledOn() {
   ledState = true;
   digitalWrite(LEDPIN, LOW);
-  digitalWrite(LEDPIN2, HIGH);
   tLED.delay( ledDelayOn );
 }
 
@@ -74,7 +73,6 @@ void ledOn() {
 void ledOff() {
   ledState = false;
   digitalWrite(LEDPIN, HIGH);
-  digitalWrite(LEDPIN2, LOW);
   tLED.delay( ledDelayOff );
 }
 

@@ -6,6 +6,7 @@
 
 // Callback methods prototypes
 void connectInit();
+void doConnect();
 void connectCheck();
 
 // Tasks
@@ -15,7 +16,7 @@ Task  tConnect    (TASK_SECOND, TASK_FOREVER, &connectInit, &ts, true);
 
 // Replace with WiFi parameters of your Access Point/Router:
 const char *ssid  =  "SAS";
-const char *pwd   =  "bighidil";
+const char *pwd   =  "xxxxx";
 
 
 void setup() {
@@ -25,9 +26,16 @@ void setup() {
   Serial.println();
 
   pinMode (LEDPIN, OUTPUT);
+  pinMode (LEDPIN1, OUTPUT);
   pinMode (LEDPIN2, OUTPUT);
+  pinMode (LEDPIN3, OUTPUT);
+  pinMode (LEDPIN4, OUTPUT);
 
-  tMQTTClient.waitFor( tConnect.getInternalStatusRequest() ); // Wait for WiFi to connect
+  otaSetup();
+  mqttSetup();
+  btnSetup();
+  lightsSetup();
+  
   lightsSetScene(LIGHT_INIT_SCENE);
 }
 
@@ -47,7 +55,7 @@ void connectInit() {
   yield();
 
   ledShowConnecting();
-  tConnect.yield(&connectCheck);            // This will pass control back to Scheduler and then continue with connection checking
+  tConnect.yield(&doConnect);            // This will pass control back to Scheduler and then continue with connection checking
 }
 
 /**
@@ -55,14 +63,15 @@ void connectInit() {
    Re-request connection every 5 seconds
    Stop trying after a timeout
 */
-void connectCheck() {
+void doConnect() {
   Serial.println(F("WiFi connectCheck."));
 
   if (WiFi.status() == WL_CONNECTED) {                // Connection established
-    Serial.print(F("Connected to AP. Local ip: "));
+    Serial.print(F("WiFi connected to AP. Local ip: "));
     Serial.println(WiFi.localIP());
     tLED.disable();
     tConnect.disable();
+    //tConnect.yield(&connectCheck); to test and enable
   }
   else {
 
@@ -89,4 +98,12 @@ void connectCheck() {
   }
 }
 
+void connectCheck() {
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println(F("WiFi disconnect detected."));
+    ledShowConnecting();
+    tConnect.yield(&doConnect);
+    
+  }
+}
 

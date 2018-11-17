@@ -2,7 +2,6 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-Scheduler ts;
 
 bool mqttInit();
 void mqttConnect();
@@ -39,6 +38,10 @@ PubSubClient mqttClient(wifiClient);
     int speedNum = message.toInt();
     lightsSetSpeed(speedNum);
   }
+}
+
+void mqttSetup() {
+  tMQTTClient.waitFor( tConnect.getInternalStatusRequest() ); // Wait for WiFi to connect
 }
 
 bool mqttInit() {
@@ -81,3 +84,23 @@ void mqttConnect() {
 void mqttLoop() {
   mqttClient.loop();
 }
+
+void mqttPublish(const char* topic, const char* msg) {
+  if ( !mqttClient.publish(topic, msg) ) {
+    Serial.print("Failed to publish to topic: ");
+    Serial.println(topic);
+  }
+}
+
+void mqttPublishScene(int sceneNum) {
+  char sceneNumStr[4];
+  itoa(sceneNum, sceneNumStr, 10);
+  mqttPublish(MQTT_SCENE_PUB_TOPIC, sceneNumStr);
+}
+
+void mqttPublishSpeed(int speed) {
+  char speedStr[4];
+  itoa(speed, speedStr, 10);
+  mqttPublish(MQTT_SPEED_PUB_TOPIC, speedStr);
+}
+
